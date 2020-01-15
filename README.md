@@ -1,5 +1,7 @@
 # COST_Germany
 
+	Setting up Virtual Environment
+
 1)Go to folder where is skeleton project folder located
 
 2)Open terminal at this location
@@ -21,3 +23,22 @@
 7)To stop wirtual environment print at terminal 
 
 	"deactivate"
+
+
+	Running docker-compose.yml file
+
+1)Check the validity of file by command
+
+    docker-compose config
+
+2)Run docker-compose.yml file by command
+
+   docker-compose up -d
+
+3)Check runnig containers
+
+   docrker-compose ps
+
+4)Bring down application by command
+
+   docker-compose down
