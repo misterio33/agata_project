@@ -1,4 +1,7 @@
 import click
+import pydicom
+import os
+import cv2
 
 
 @click.group()
@@ -7,27 +10,37 @@ def cli1():
 
 
 @cli1.command()
-@click.option('--dicom', '-d', help='Path to dicom file')
-@click.option('--png', '-p', help='Path to folder with png')
-def dicom_to_png(dicom, png):
-    """Command for converting dicom files to png format"""
-    print('The location of dicom file is {} , and path to folder with png is {}'.format(dicom, png))
+@click.option('--dicompath', help='Path to folder with dicom file, for example : /home/usr/DICOM_TEST/')
+@click.option('--outputpath', help='Path to folder of converted files, for example: /home/usr/OUTPUT/')
+@click.option('--converttype', help='Select output type file, choose from png or jpg')
+def dicomconvert(dicompath, outputpath, converttype):
+    """Command for converting dicom files to jpeg/png format"""
+    print('The location of folder with dicom files is {}'.format(dicompath))
+    print('The location of folder with png files is {}'.format(outputpath))
+    input_dir = dicompath
+    out_dir = outputpath
+    out_put_type = converttype
+
+    dicom_files_list = [file for file in os.listdir(input_dir)]
+
+    for file in dicom_files_list:
+        ds = pydicom.read_file(input_dir + file)  # read dicom image
+        image = ds.pixel_array  # get image array
+        if out_put_type == 'png':
+            cv2.imwrite(out_dir + file.replace('.dcm', '.png'), image)  # write png image
+            print(file + ' was converted to png')
+        elif out_put_type == 'jpg':
+            cv2.imwrite(out_dir + file.replace('.dcm', '.jpg'), image)  # write jpg image
+            print(file + ' was converted to jpg')
+        else:
+            print('select correct type')
+            break
+
+    print('Was converted ' + str(len(dicom_files_list)) + ' files')
 
 
-@click.group()
-def cli2():
-    pass
-
-
-@cli2.command()
-@click.option('--dicom', '-d', help='Path to dicom file')
-@click.option('--jpeg', '-j', help='Path to folder with jpeg')
-def dicom_to_jpeg(dicom, jpeg):
-    """Command for converting dicom files to jpeg format"""
-    print('The location of dicom file is {} , and path to folder with jpeg is {}'.format(dicom, jpeg))
-
-
-cli = click.CommandCollection(sources=[cli1, cli2])
+cli = click.CommandCollection(sources=[cli1])
 
 if __name__ == '__main__':
     cli()
+
