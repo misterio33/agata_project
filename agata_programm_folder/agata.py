@@ -1,7 +1,6 @@
 import click
-import pydicom
 import os
-import cv2
+import SimpleITK as sitk
 
 
 @click.group()
@@ -10,33 +9,43 @@ def cli1():
 
 
 @cli1.command()
-@click.option('--dicompath', help='Path to folder with dicom file, for example : /home/usr/DICOM_TEST/')
-@click.option('--outputpath', help='Path to folder of converted files, for example: /home/usr/OUTPUT/')
-@click.option('--converttype', help='Select output type file, choose from png or jpg')
-def dicomconvert(dicompath, outputpath, converttype):
-    """Command for converting dicom files to jpeg/png format"""
-    print('The location of folder with dicom files is {}'.format(dicompath))
-    print('The location of folder with png files is {}'.format(outputpath))
-    input_dir = dicompath
-    out_dir = outputpath
-    out_put_type = converttype
+@click.option('--dicompath', help='Path to folder with dicom file, for example : /home/usr/DICOM_FOLDER')
+@click.option('--outputpath', help='Path to folder of converted files, for example: /home/usr/OUTPUT_FOLDER, '
+                                   'if this folder does not exist, a new one will be created')
+def convert(dicompath, outputpath):
+    # Specify the input dicom folder path
+    # No matter does folder path has '/' at the end or not
+    if dicompath[-1] == '/':
+        folder_path = dicompath
+    else:
+        folder_path = dicompath + '/'
 
-    dicom_files_list = [file for file in os.listdir(input_dir)]
+    # Specify the output folder path
+    # No matter does folder path has '/' at the end or not
+    if outputpath[-1] == '/':
+        output_folder_path = outputpath
+    else:
+        output_folder_path = outputpath + '/'
 
-    for file in dicom_files_list:
-        ds = pydicom.read_file(input_dir + file)  # read dicom image
-        image = ds.pixel_array  # get image array
-        if out_put_type == 'png':
-            cv2.imwrite(out_dir + file.replace('.dcm', '.png'), image)  # write png image
-            print(file + ' was converted to png')
-        elif out_put_type == 'jpg':
-            cv2.imwrite(out_dir + file.replace('.dcm', '.jpg'), image)  # write jpg image
-            print(file + ' was converted to jpg')
+    # Creating new output directory if not exist
+    if not os.path.exists(output_folder_path):
+        os.makedirs(output_folder_path)
+
+    images_path = os.listdir(folder_path)
+    for n, images in enumerate(images_path):
+        # Deleting '.dcm' from file name
+        if '.dcm' in images:
+            imagename = images.replace('.dcm', '')
         else:
-            print('select correct type')
-            break
-
-    print('Was converted ' + str(len(dicom_files_list)) + ' files')
+            imagename = images
+        # Reading dicom image
+        img = sitk.ReadImage(folder_path + images)
+        # rescale intensity range from [-1000,1000] to [0,255]
+        img = sitk.IntensityWindowing(img, -1000, 1000, 0, 255)
+        # convert 16-bit pixels to 8-bit
+        img = sitk.Cast(img, sitk.sitkUInt8)
+        # Writing converted png image
+        sitk.WriteImage(img, output_folder_path + imagename + '.png')
 
 
 cli = click.CommandCollection(sources=[cli1])
