@@ -40,8 +40,8 @@ def convert(dicompath, outputpath):
             image_name = images
         # Reading .dcm image
         img = sitk.ReadImage(folder_path + images)
-        # rescale intensity range from [-1000,1000] to [0,255]
-        img = sitk.IntensityWindowing(img, -1000, 1000, 0, 255)
+        # rescale intensity range from [-2000,2000] to [0,255]
+        img = sitk.IntensityWindowing(img, -2000, 2000, 0, 255)
         # convert 16-bit pixels to 8-bit
         img = sitk.Cast(img, sitk.sitkUInt8)
         # Writing converted png image
