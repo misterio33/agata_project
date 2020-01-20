@@ -44,7 +44,9 @@
 	
 4. Run folloving command to see details
 
-	`python agata.py --help`
+	`python agata.py --help` this command will show you all available commands
+	
+	`python agata.py convert --help` will chow you information about convert command
 	
 5. To run dicom to png converter use next command:
 
