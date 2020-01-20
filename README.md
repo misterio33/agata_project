@@ -2,23 +2,29 @@
 
 # Setting up Virtual Environment
 
-1. Go to folder where is skeleton project folder located
+1. Open terminal
 
-2. Open terminal at this location
-
-3. To make new virtual environment print the followint at the terminal:
+2. Go to project root folder 
 	
-	`virtualenv venv` this will create venv folder
+	`cd agata_project/` this command  will move you to root project folder
+
+3. To make new virtual environment print the following at the terminal:
+	
+	`virtualenv venv` this command will create venv folder
 
 4. To activate virtual environment print the followint at the terminal:
 
-	`source venv/bin/activate` this will activate virtual environment, you must see (venv) at your promt 
+	`source venv/bin/activate` this command will activate virtual environment, you must see (venv) at your promt 
 
-5. To install all needed libraries print the followint at the terminal:
+5. To install all needed libraries via printing the followint command:
 
-	`pip install -r requirements.txt` this will install every libriary specified at the requirement.txt document
+	`pip install -r requirements.txt` this command will install every libriary specified at the requirement.txt document
 
-6. After installing libraries go to skeleton project folder and run skeleton project file
+6. After installing libraries go to agata_project_folder and run help for agata.py file
+
+	`cd agata_project_folder/` this will move you to program folder
+	
+	`python agata.py --help` this will show you existing comands 
 
 7. To stop wirtual environment print at terminal 
 
