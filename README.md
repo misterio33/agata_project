@@ -24,21 +24,32 @@
 
 	"deactivate"
 
+# Running agata programm
+
+1. Run virtual environment
+
+2. Go to agata.py folder 
+
+	cd agata_project_folder
+	
+3. Run folloving command to see details
+
+	python agata.py --help
 
 # Running docker-compose.yml file
 
-1)Check the validity of file by command
+1. Check the validity of file by command
 
     docker-compose config
 
-2)Run docker-compose.yml file by command
+2. Run docker-compose.yml file by command
 
    docker-compose up -d
 
-3)Check runnig containers
+3. Check runnig containers
 
    docrker-compose ps
 
-4)Bring down application by command
+4. Bring down application by command
 
    docker-compose down
