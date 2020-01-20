@@ -1,6 +1,6 @@
 # COST_Germany
 
-	Setting up Virtual Environment
+	#Setting up Virtual Environment
 
 1)Go to folder where is skeleton project folder located
 
