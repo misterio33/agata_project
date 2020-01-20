@@ -1,7 +1,7 @@
 /venv
 /.idea
-/agata_project/.idea
-/agata_project/Pipfile
-/agata_project/Pipfile.lock
-/agata_project/__pycache__
+/agata_programm_folder/.idea
+/agata_programm_folder/Pipfile
+/agata_programm_folder/Pipfile.lock
+/agata_programm_folder/__pycache__
 
