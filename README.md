@@ -1,6 +1,6 @@
 # COST_Germany
 
-	#Setting up Virtual Environment
+# Setting up Virtual Environment
 
 1)Go to folder where is skeleton project folder located
 
@@ -25,7 +25,7 @@
 	"deactivate"
 
 
-	Running docker-compose.yml file
+# Running docker-compose.yml file
 
 1)Check the validity of file by command
 
