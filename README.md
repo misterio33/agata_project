@@ -34,13 +34,27 @@
 
 1. Run virtual environment
 
-2. Go to agata.py folder 
+2. Check libraries at virtual environment using command:
+
+	`pip install -r requirements.txt`
+
+3. Go to agata.py folder 
 
 	`cd agata_project_folder/`
 	
-3. Run folloving command to see details
+4. Run folloving command to see details
 
 	`python agata.py --help`
+	
+5. To run dicom to png converter use next command:
+
+	`python agata.py convert --dicompath /path/to/dicom --outputpath /path/output/folder`
+	
+	Do not forget to put '/' in the beginning of paths
+	
+6. Example of running converter:
+	
+	`python agata.py convert --dicompath /home/pasha/DICOM_TEST --outputpath /home/pasha/PNG_TEST`
 
 # Running docker-compose.yml file
 
