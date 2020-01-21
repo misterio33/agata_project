@@ -9,27 +9,27 @@ def cli1():
 
 
 @cli1.command()
-@click.option('--dicompath', help='Path to folder with .dcm files, for example : /home/usr/DICOM_FOLDER')
-@click.option('--outputpath', help='Path to folder of converted files, for example: /home/usr/OUTPUT_FOLDER, '
+@click.option('--dicom_path', help='Path to folder with .dcm files, for example : /home/usr/DICOM_FOLDER')
+@click.option('--output_path', help='Path to folder of converted files, for example: /home/usr/OUTPUT_FOLDER, '
                                    'if this folder does not exist, a new one will be created')
-def convert(dicompath, outputpath):
+def convert(dicom_path, output_path):
     window_minimum = -2000
     window_maximum = 2000
     output_minimum = 0
     output_maximum = 255
     # Specify the input .dcm folder path
     # No matter does folder path has '/' at the end or not
-    if dicompath[-1] == '/':
-        folder_path = dicompath
+    if dicom_path[-1] == '/':
+        folder_path = dicom_path
     else:
-        folder_path = dicompath + '/'
+        folder_path = dicom_path + '/'
 
     # Specify the output folder path
     # No matter does folder path has '/' at the end or not
-    if outputpath[-1] == '/':
-        output_folder_path = outputpath
+    if output_path[-1] == '/':
+        output_folder_path = output_path
     else:
-        output_folder_path = outputpath + '/'
+        output_folder_path = output_path + '/'
 
     # Creating new output directory if not exist
     if not os.path.exists(output_folder_path):
