@@ -70,7 +70,7 @@
 
 3. Check runnig containers
 
-   `docrker-compose ps`
+   `docker-compose ps`
 
 4. Bring down application by command
 
