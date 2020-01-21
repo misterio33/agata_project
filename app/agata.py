@@ -13,6 +13,10 @@ def cli1():
 @click.option('--outputpath', help='Path to folder of converted files, for example: /home/usr/OUTPUT_FOLDER, '
                                    'if this folder does not exist, a new one will be created')
 def convert(dicompath, outputpath):
+    window_minimum = -2000
+    window_maximum = 2000
+    output_minimum = 0
+    output_maximum = 255
     # Specify the input .dcm folder path
     # No matter does folder path has '/' at the end or not
     if dicompath[-1] == '/':
@@ -42,7 +46,7 @@ def convert(dicompath, outputpath):
         img = sitk.ReadImage(folder_path + images)
 
         # rescale intensity range from [-2000,2000] to [0,255]
-        img = sitk.IntensityWindowing(img, -2000, 2000, 0, 255)
+        img = sitk.IntensityWindowing(img, window_minimum, window_maximum, output_minimum, output_maximum)
         # convert 16-bit pixels to 8-bit
         img = sitk.Cast(img, sitk.sitkUInt8)
         # Writing converted png image
