@@ -49,9 +49,6 @@ def convert(dicompath, outputpath):
         # rescale intensity range from [-2000,2000] to [0,255]
         img = sitk.IntensityWindowing(img, window_minimum, window_maximum, output_minimum, output_maximum)
 
-        # rescale intensity range from [-2000,2000] to [0,255]
-        img = sitk.IntensityWindowing(img, -2000, 2000, 0, 255)
-
         # convert 16-bit pixels to 8-bit
         img = sitk.Cast(img, sitk.sitkUInt8)
         # Writing converted png image
