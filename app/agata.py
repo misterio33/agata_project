@@ -12,7 +12,7 @@ def cli1():
 @cli1.command()
 @click.option('--dicom_path', help='Path to folder with .dcm files, for example : /home/usr/DICOM_FOLDER')
 @click.option('--output_path', help='Path to folder of converted files, for example: /home/usr/OUTPUT_FOLDER, '
-                                   'if this folder does not exist, a new one will be created')
+                                    'if this folder does not exist, a new one will be created')
 def convert(dicom_path, output_path):
     window_minimum = -2000
     window_maximum = 2000
@@ -22,19 +22,24 @@ def convert(dicom_path, output_path):
     # No matter does folder path has '/' at the end or not
     if dicom_path[-1] == '/':
         folder_path = dicom_path
+        logging.warning('Input folder is ' + dicom_path)
     else:
         folder_path = dicom_path + '/'
+        logging.warning('Input folder is ' + dicom_path)
 
     # Specify the output folder path
     # No matter does folder path has '/' at the end or not
     if output_path[-1] == '/':
         output_folder_path = output_path
+        logging.warning('Converted files will be at this location ' + output_path)
     else:
         output_folder_path = output_path + '/'
+        logging.warning('Converted files will be at this location ' + output_path)
 
     # Creating new output directory if not exist
     if not os.path.exists(output_folder_path):
         os.makedirs(output_folder_path)
+        logging.warning('Converted files will be at this location ' + output_path)
 
     images_path = os.listdir(folder_path)
     logging.warning('Starting converting')
@@ -46,7 +51,7 @@ def convert(dicom_path, output_path):
             image_name = images.replace('.dcm', '')
         else:
             image_name = images
-            
+
         # Reading .dcm image
         img = sitk.ReadImage(folder_path + images)
 
@@ -65,4 +70,3 @@ cli = click.CommandCollection(sources=[cli1])
 
 if __name__ == '__main__':
     cli()
-
