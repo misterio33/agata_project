@@ -1,6 +1,7 @@
 import click
 import os
 import SimpleITK as sitk
+import logging
 
 
 @click.group()
@@ -36,7 +37,10 @@ def convert(dicom_path, output_path):
         os.makedirs(output_folder_path)
 
     images_path = os.listdir(folder_path)
+    logging.warning('Starting converting')
+    counter = 0
     for n, images in enumerate(images_path):
+        counter = counter + 1
         # Deleting '.dcm' from file name
         if '.dcm' in images:
             image_name = images.replace('.dcm', '')
@@ -53,6 +57,8 @@ def convert(dicom_path, output_path):
         img = sitk.Cast(img, sitk.sitkUInt8)
         # Writing converted png image
         sitk.WriteImage(img, output_folder_path + image_name + '.png')
+        logging.warning('File ' + image_name + ' was converted to png')
+    logging.warning('Was converted ' + str(counter) + ' files from .dcm to  .png')
 
 
 cli = click.CommandCollection(sources=[cli1])
