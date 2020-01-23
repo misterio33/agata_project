@@ -2,10 +2,11 @@ import os
 import SimpleITK as sitk
 import logging
 
+
 class DicomConverter:
   def convert(self, dicom_path, output_path):
-    window_minimum = -2000
-    window_maximum = 2000
+    window_minimum = -2048
+    window_maximum = 2047
     output_minimum = 0
     output_maximum = 255
     # Specify the input .dcm folder path
@@ -45,7 +46,7 @@ class DicomConverter:
         # Reading .dcm image
         img = sitk.ReadImage(folder_path + images)
 
-        # rescale intensity range from [-2000,2000] to [0,255]
+        # rescale intensity range from [-2048,2047] to [0,255]
         img = sitk.IntensityWindowing(img, window_minimum, window_maximum, output_minimum, output_maximum)
 
         # convert 16-bit pixels to 8-bit

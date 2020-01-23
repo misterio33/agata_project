@@ -1,9 +1,11 @@
 import click
 from lib.dicom import DicomConverter
 
+
 @click.group()
 def cli1():
     pass
+
 
 @cli1.command()
 @click.option('--dicom_path', help='Path to folder with .dcm files, for example : /home/usr/DICOM_FOLDER')
@@ -12,6 +14,7 @@ def cli1():
 def convert(dicom_path, output_path):
     dicom = DicomConverter()
     dicom.convert(dicom_path, output_path)
+
 
 cli = click.CommandCollection(sources=[cli1])
 
