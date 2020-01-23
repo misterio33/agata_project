@@ -6,7 +6,7 @@
 
 2. Go to project root folder 
 	
-	`cd agata_project/` this command  will move you to root project folder
+	`cd  app/` this command  will move you to root project folder
 
 3. To make new virtual environment print the following at the terminal:
 	
@@ -22,7 +22,7 @@
 
 6. After installing libraries go to agata_project_folder and run help for agata.py file
 
-	`cd agata_project_folder/` this will move you to program folder
+	`cd app/` this will move you to program folder
 	
 	`python agata.py --help` this will show you existing comands 
 

@@ -1,70 +1,17 @@
 import click
-import os
-import SimpleITK as sitk
-import logging
-
+from lib.dicom import DicomConverter
 
 @click.group()
 def cli1():
     pass
-
 
 @cli1.command()
 @click.option('--dicom_path', help='Path to folder with .dcm files, for example : /home/usr/DICOM_FOLDER')
 @click.option('--output_path', help='Path to folder of converted files, for example: /home/usr/OUTPUT_FOLDER, '
                                     'if this folder does not exist, a new one will be created')
 def convert(dicom_path, output_path):
-    window_minimum = -2000
-    window_maximum = 2000
-    output_minimum = 0
-    output_maximum = 255
-    # Specify the input .dcm folder path
-    # No matter does folder path has '/' at the end or not
-    if dicom_path[-1] == '/':
-        folder_path = dicom_path
-        logging.warning('Input folder is ' + dicom_path)
-    else:
-        folder_path = dicom_path + '/'
-        logging.warning('Input folder is ' + dicom_path)
-
-    # Specify the output folder path
-    # No matter does folder path has '/' at the end or not
-    if output_path[-1] == '/':
-        output_folder_path = output_path
-        logging.warning('Converted files will be at this location ' + output_path)
-    else:
-        output_folder_path = output_path + '/'
-        logging.warning('Converted files will be at this location ' + output_path)
-
-    # Creating new output directory if not exist
-    if not os.path.exists(output_folder_path):
-        os.makedirs(output_folder_path)
-        logging.warning('Converted files will be at this location ' + output_path)
-
-    images_path = os.listdir(folder_path)
-    logging.warning('Starting converting')
-    counter = 0
-    for n, images in enumerate(images_path):
-        counter = counter + 1
-        # Deleting '.dcm' from file name
-        if '.dcm' in images:
-            image_name = images.replace('.dcm', '')
-        else:
-            image_name = images
-
-        # Reading .dcm image
-        img = sitk.ReadImage(folder_path + images)
-
-        # rescale intensity range from [-2000,2000] to [0,255]
-        img = sitk.IntensityWindowing(img, window_minimum, window_maximum, output_minimum, output_maximum)
-
-        # convert 16-bit pixels to 8-bit
-        img = sitk.Cast(img, sitk.sitkUInt8)
-        # Writing converted png image
-        sitk.WriteImage(img, output_folder_path + image_name + '.png')
-        logging.warning('File ' + image_name + ' was converted to png')
-    logging.warning('Was converted ' + str(counter) + ' files from .dcm to  .png')
-
+    dicom = DicomConverter()
+    dicom.convert(dicom_path, output_path)
 
 cli = click.CommandCollection(sources=[cli1])
 
