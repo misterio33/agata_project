@@ -6,7 +6,7 @@
 
 2. Go to project root folder 
 	
-	`cd  app/` this command  will move you to root project folder
+	`cd  project_folder/` this command  will move you to root project folder
 
 3. To make new virtual environment print the following at the terminal:
 	
@@ -16,7 +16,7 @@
 
 	`source venv/bin/activate` this command will activate virtual environment, you must see (venv) at your promt 
 
-5. To install all needed libraries via printing the followint command:
+5. To install all needed libraries via printing the followint command (virtual environment must be activated, see point 4):
 
 	`pip install -r requirements.txt` this command will install every libriary specified at the requirement.txt document
 
@@ -34,13 +34,17 @@
 
 1. Run virtual environment
 
+	`cd agata_project/` go to venv direction
+	
+	`source venv/bin/activate`start venv
+
 2. Check libraries at virtual environment using command:
 
 	`pip install -r requirements.txt`
 
 3. Go to agata.py folder 
 
-	`cd agata_project_folder/`
+	`cd app/`
 	
 4. Run folloving command to see details
 
