@@ -49,7 +49,7 @@ class DicomConverter:
         # rescale intensity range from [-2048,2047] to [0,255]
         img = sitk.IntensityWindowing(img, window_minimum, window_maximum, output_minimum, output_maximum)
 
-        # convert 16-bit pixels to 8-bit
+        # convert 11-bit pixels to 8-bit
         img = sitk.Cast(img, sitk.sitkUInt8)
         # Writing converted png image
         sitk.WriteImage(img, output_folder_path + image_name + '.png')
