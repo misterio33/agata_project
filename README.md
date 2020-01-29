@@ -75,3 +75,23 @@
 4. Bring down application by command
 
    `docker-compose down`
+ # Running Dockerfile
+ 
+ 1. Open terminal at project root folder
+ 
+ 2. Create docker image by using comand 
+ 
+    `sudo docker build -t agatatest .`
+    
+ 3. Run docker image by using comand
+ 
+    `sudo docker run -ti --rm agatatest`
+ 
+ 4. For info about convert function run function
+ 
+    `sudo docker run -ti --rm agatatest convert --help`
+    
+ 5. To run converter use comand (dont work becauce function needs folder for --dicom_path argument, but there are no such directory exists at Docker)
+ 
+    `sudo docker run -ti --rm agatatest convert --dicom_path /path/to/dicom --output_path /path/to/output`
+ 
