@@ -81,17 +81,17 @@
  
  2. Create docker image by using comand 
  
-    `sudo docker build -t agatatest .`
+    `docker build -t agatatest .`
     
  3. Run docker image by using comand
  
-    `sudo docker run -ti --rm agatatest`
+    `docker run -ti --rm agatatest`
  
  4. For info about convert function run function
  
-    `sudo docker run -ti --rm agatatest convert --help`
+    `docker run -ti --rm agatatest convert --help`
     
  5. To run converter use comand (dont work becauce function needs folder for --dicom_path argument, but there are no such directory exists at Docker)
  
-    `sudo docker run -ti --rm agatatest convert --dicom_path /path/to/dicom --output_path /path/to/output`
+    `docker run -ti --rm -v <absolute_path_to_local_dicom_folder>:/dicom -v  <absolute_path_to_local_images_folder>:/images agatatest convert --dicom_path /dicom --output_path /images`
  
