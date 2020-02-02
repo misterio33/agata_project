@@ -6,23 +6,23 @@
 
 2. Go to project root folder 
 	
-	`cd agata_project/` this command  will move you to root project folder
+	`cd  app/` this command  will move you to root project folder
 
 3. To make new virtual environment print the following at the terminal:
 	
 	`virtualenv venv` this command will create venv folder
 
-4. To activate virtual environment print the followint at the terminal:
+4. To activate virtual environment print the following in the terminal:
 
 	`source venv/bin/activate` this command will activate virtual environment, you must see (venv) at your promt 
 
-5. To install all needed libraries via printing the followint command:
+5. To install all needed libraries run the following command:
 
-	`pip install -r requirements.txt` this command will install every libriary specified at the requirement.txt document
+	`pip install -r requirements.txt` this command will install all libraries
 
 6. After installing libraries go to agata_project_folder and run help for agata.py file
 
-	`cd agata_project_folder/` this will move you to program folder
+	`cd app/` this will move you to program folder
 	
 	`python agata.py --help` this will show you existing comands 
 
@@ -30,7 +30,7 @@
 
 	`deactivate`
 
-# Running agata programm
+# Running agata program
 
 1. Run virtual environment
 
@@ -46,7 +46,7 @@
 
 	`python agata.py --help` this command will show you all available commands
 	
-	`python agata.py convert --help` will chow you information about convert command
+	`python agata.py convert --help` will show you information about convert command
 	
 5. To run dicom to png converter use next command:
 
@@ -70,8 +70,29 @@
 
 3. Check runnig containers
 
-   `docrker-compose ps`
+   `docker-compose ps`
 
 4. Bring down application by command
 
    `docker-compose down`
+   
+ # Running Dockerfile
+ 
+ 1. Open terminal at project root folder
+ 
+ 2. Create docker image by using command:
+ 
+    `docker build -t agatatest .`
+    
+ 3. Run docker image by using command:
+ 
+    `docker run -ti --rm agatatest`
+ 
+ 4. For info about convert function run the following:
+ 
+    `docker run -ti --rm agatatest convert --help`
+    
+ 5. To run converter use command:
+ 
+    `docker run -ti --rm -v <absolute_path_to_local_dicom_folder>:/dicom -v  <absolute_path_to_local_images_folder>:/images agatatest convert --dicom_path /dicom --output_path /images`
+ 
