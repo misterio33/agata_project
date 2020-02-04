@@ -98,15 +98,15 @@
  
 # Running converter at server
 
- 1. To connect to server use command (you must be at the same wifi netwokr as server, now this is `eduoroam`):
+ 1. To connect to server use command (you must be at the same WiFi network as server, now this is `eduoroam`):
  
     `ssh your_login@10.100.2.119`
  
- 2. To authorize at docker use command at server terminal (this command will authorize you at docker system and povode to you ability ability to pull docker images from your coworkers):
+ 2. To authorize at docker use command at server terminal (this command will authorize you at docker system and give you ability ability to pull docker images from your coworkers):
  
     `docker login`
     
- 3. To pull docker image with converet use command at server terminal (this command will instal docker image with converter to server):
+ 3. To pull docker image with converter use command at server terminal (this command will install docker image with converter to server):
  
     `docker pull alinanechyporenko/wildau_charme_2020:latest`
     
@@ -130,7 +130,7 @@
     
     `docker run -ti --rm -v /home/ponoprienko/CA15110_COST_Project/input/segmentation:/dicom -v /home/ponoprienko/CA15110_COST_Project/png:/images alinanechyporenko/wildau_charme_2020 convert --dicom_path /dicom --output_path /images`
     
-  7. To download converted images from server to local machine use command at local machine terimal:
+  7. To download converted images from server to local machine use command at local machine terminal:
   
      `scp -r user_name_at_server@10.100.2.119:/absolute/path/to/output/folder/at/server /absolute/path/to/output/folder/at/local/machine`
      
