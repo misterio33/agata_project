@@ -98,21 +98,21 @@
  
 # Running converter at server
 
- 1. To connect to server use command:
+ 1. To connect to server use command (you must be at the same wifi netwokr as server, now this is `eduoroam`):
  
     `ssh your_login@10.100.2.119`
  
- 2. To authorize at docker use command:
+ 2. To authorize at docker use command at server terminal (this command will authorize you at docker system and povode to you ability ability to pull docker images from your coworkers):
  
     `docker login`
     
- 3. To pull docker image with converet use command:
+ 3. To pull docker image with converet use command at server terminal (this command will instal docker image with converter to server):
  
     `docker pull alinanechyporenko/wildau_charme_2020:latest`
     
- 4. To check docker image use command:
+ 4. To check docker image use command at server terminal (this command will show you info about program):
   
-    `docker run -ti --rm alinanechyporenko/wildau_charme_2020` this command will show you info
+    `docker run -ti --rm alinanechyporenko/wildau_charme_2020` 
     
  5. To load files from local machine to remote server you must open terminal at local machine and use command:
  
@@ -124,11 +124,11 @@
     
   6. To start converter use command at server terminal:
   
-     `docker run -ti --rm -v /absolute/path/to/input/folder/at/server:/dicom -v /absolute/path/to/output/folder/at/server/:/images alinanechyporenko/wildau_charme_2020 convert --dicom_path /dicom --output_path /images`
+     `docker run -ti --rm -v /absolute/path/to/input/folder/at/server:/dicom -v /absolute/path/to/output/folder/at/server:/images alinanechyporenko/wildau_charme_2020 convert --dicom_path /dicom --output_path /images`
      
      Example:
     
-    `docker run -ti --rm -v /home/ponoprienko/CA15110_COST_Project/input/сегментация:/dicom -v /home/ponoprienko/CA15110_COST_Project/png:/images alinanechyporenko/wildau_charme_2020 convert --dicom_path /dicom --output_path /images`
+    `docker run -ti --rm -v /home/ponoprienko/CA15110_COST_Project/input/segmentation:/dicom -v /home/ponoprienko/CA15110_COST_Project/png:/images alinanechyporenko/wildau_charme_2020 convert --dicom_path /dicom --output_path /images`
     
   7. To download converted images from server to local machine use command at local machine terimal:
   
