@@ -1,5 +1,6 @@
 import click
 from lib.dicom import DicomConverter
+from lib.maskJSON import MaskCreatorFromJSON
 
 
 @click.group()
@@ -16,7 +17,20 @@ def convert(dicom_path, output_path):
     dicom.convert(dicom_path, output_path)
 
 
-cli = click.CommandCollection(sources=[cli1])
+@click.group()
+def cli2():
+    pass
+
+
+@cli2.command()
+@click.option('--json_file', help='Name of json file, it must be at the same location as agata.py'
+                                  '(temporally, will be changed soon)')
+def jsonmask(json_file):
+    json = MaskCreatorFromJSON()
+    json.mask_from_json(json_file)
+
+
+cli = click.CommandCollection(sources=[cli1, cli2])
 
 if __name__ == '__main__':
     cli()
