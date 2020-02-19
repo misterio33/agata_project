@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import logging
 import os
+from shutil import copy
 
 
 class MaskCreatorFromJSON:
@@ -60,6 +61,27 @@ class MaskCreatorFromJSON:
 
             # Saving created mask
             cv2.imwrite(output_folder_path + image_name + '.png', img)
+
+    # Function for single json file
+    def single_json_mask(self, data_folder, json_file_id, output_path):
+        with open(data_folder + json_file_id + 'mask' + '.json') as f:
+            data = json.load(f)
+
+            # Reading image parameters
+            img_height = data['imageHeight']
+            img_width = data['imageWidth']
+
+            # Creating black background
+            img = np.zeros((img_height, img_width), dtype="uint8")
+
+            # Making masks for left and right regions of interest
+            for mask_part in range(0, len(data['shapes'])):
+                points = data['shapes'][mask_part]['points']
+                points = np.array(points, np.int32)
+                img = cv2.fillPoly(img, [points], 255)
+
+            # Saving created mask
+            cv2.imwrite(output_path + json_file_id + '.png', img)
 
 
 
