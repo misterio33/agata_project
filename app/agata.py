@@ -38,13 +38,14 @@ def cli3():
 
 
 @cli3.command()
-#@click.option('--train_data', help='Path to folder with training data such as pictures and masks')
+@click.option('--sort_input_data', help='Path to folder with data such as pictures and masks')
+@click.option('--sort_output_data', help='Path to folder with data such as pictures and masks')
 #@click.option('--test_data', help='Path to folder with test data')
 #@click.option('--pretrained_model', help='If you have pretrained model, please write the name of this model'
  #                                        '(model must be at the same place as agata.py), if not - print "None"')
-def unet():
+def Unet(sort_input_data, sort_output_data):
     model = Network()
-    model.train_network()
+    model.train_network(sort_input_data, sort_output_data)
 
 
 cli = click.CommandCollection(sources=[cli1, cli2, cli3])
