@@ -9,15 +9,12 @@ import warnings
 import cv2
 
 import numpy as np
-import pandas as pd
 
-import matplotlib.pyplot as plt
 
 from tqdm import tqdm
-from itertools import chain
-from skimage.io import imread, imshow, imread_collection, concatenate_images
+
 from skimage.transform import resize
-from skimage.morphology import label
+
 
 from keras.models import Model, load_model
 from keras.layers import Input
@@ -26,7 +23,7 @@ from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.pooling import MaxPooling2D
 from keras.layers.merge import concatenate
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras import backend as K
+
 
 import tensorflow as tf
 
@@ -35,19 +32,21 @@ IMG_WIDTH = 128
 IMG_HEIGHT = 128
 IMG_CHANNELS = 3
 
-server = True
+server = False
 
 if server:
     TRAIN_PATH = '/CA15110_COST_Project/stage1_train/'
     TEST_PATH = '/CA15110_COST_Project/stage1_test/'
+    user = '/home/ponoprienko'
 else:
     TRAIN_PATH = '/COST_Germany/agata_project/stage1_train/'
     TEST_PATH = '/COST_Germany/agata_project/stage1_test/'
-
+    user = '/home/pasha'
+#/home/pasha/COST_Germany/agata_project/stage1_test/
 
 class Network:
 
-    def unet(self, pretrained_weights=None, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)):
+    def unet(self, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)):
         inputs = Input(input_size)
         s = Lambda(lambda x: x / 255)(inputs)
 
@@ -110,11 +109,13 @@ class Network:
         #    model.load_weights(pretrained_weights)
         #   return model
 
-    def sort_data(self):
-        data_folder = '/home/ponoprienko/CA15110_COST_Project/data/'
-        train_path = TRAIN_PATH
+    def sort_data(self, input_data, output_data):
+        data_folder = user + '/CA15110_COST_Project/data/'
+        data_folder = input_data
+        #data_folder = user + '/COST_Germany/agata_project/data/'
+        #train_path = TRAIN_PATH
 
-        files = next(os.walk(data_folder))[2]
+        files = os.listdir(data_folder)
 
         train_id = []
         for n, id_ in tqdm(enumerate(files), total=len(files)):
@@ -123,14 +124,14 @@ class Network:
                 train_id.append(id_)
 
         for i in train_id:
-            path = '/home/ponoprienko/' + train_path + i + '/images'
+            path = output_data + i + '/images'
             os.makedirs(path)
-            copy(data_folder + i + '.png', path)
+            copy(data_folder + '/' + i + '.png', path)
 
-            path = '/home/ponoprienko/' + train_path + i + '/masks'
+            path = output_data + i + '/masks'
             os.makedirs(path)
             a = MaskCreatorFromJSON
-            a.single_json_mask(self, data_folder, i, path + '/')
+            a.single_json_mask(self, data_folder + '/', i, path + '/')
 
     def load_data(self):
 
@@ -139,9 +140,9 @@ class Network:
         random.seed = seed
         np.random.seed = seed
 
-        train_ids = next(os.walk('/home/ponoprienko' + TRAIN_PATH))[1]
+        train_ids = next(os.walk(user + TRAIN_PATH))[1]
         print(train_ids)
-        test_ids = next(os.walk('/home/ponoprienko' + TEST_PATH))[1]
+        test_ids = next(os.walk(user + TEST_PATH))[1]
 
         # Get and resize train images and masks
         X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
@@ -150,7 +151,7 @@ class Network:
         sys.stdout.flush()
 
         for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):
-            path = '/home/ponoprienko' + TRAIN_PATH + id_
+            path = user + TRAIN_PATH + id_
             img = cv2.imread(path + '/images/' + id_ + '.png')[:, :, :IMG_CHANNELS]
             img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
             # print('img ', img.shape)
@@ -188,7 +189,7 @@ class Network:
         model.fit(X_train, Y_train, validation_split=0.2, batch_size=2, epochs=50,
                   callbacks=[earlystopper, checkpointer])
 
-    def train_network(self):
+    def train_network(self, sort_input_data):
 
-        self.sort_data()
+        self.sort_data(sort_input_data)
         self.load_data()
