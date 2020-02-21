@@ -1,6 +1,6 @@
 import click
 from lib.dicom import DicomConverter
-from lib.maskJSON import MaskCreatorFromJSON
+#from lib.maskJSON import MaskCreatorFromJSON
 from lib.model import Network
 
 
@@ -38,14 +38,15 @@ def cli3():
 
 
 @cli3.command()
-@click.option('--sort_input_data', help='Path to folder with data such as pictures and masks')
-@click.option('--sort_output_data', help='Path to folder with data such as pictures and masks')
+@click.option('--input_data', help='Path to folder with data such as pictures and masks')
+@click.option('--model_path', help='Path to folder with model')
 #@click.option('--test_data', help='Path to folder with test data')
 #@click.option('--pretrained_model', help='If you have pretrained model, please write the name of this model'
  #                                        '(model must be at the same place as agata.py), if not - print "None"')
-def Unet(sort_input_data, sort_output_data):
+#def Unet(sort_input_data, sort_output_data):
+def unet(input_data, model_path):
     model = Network()
-    model.train_network(sort_input_data, sort_output_data)
+    model.train_network(input_data, model_path)
 
 
 cli = click.CommandCollection(sources=[cli1, cli2, cli3])
