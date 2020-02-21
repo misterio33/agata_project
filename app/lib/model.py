@@ -1,5 +1,5 @@
 import os
-from lib.maskJSON import MaskCreatorFromJSON
+#from lib.maskJSON import MaskCreatorFromJSON
 from shutil import copy
 
 import sys
@@ -28,25 +28,25 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 import tensorflow as tf
 
 # Set some parameters
-IMG_WIDTH = 128
-IMG_HEIGHT = 128
+IMG_WIDTH = 256
+IMG_HEIGHT = 256
 IMG_CHANNELS = 3
 
-server = False
+server = True
 
 if server:
     TRAIN_PATH = '/CA15110_COST_Project/stage1_train/'
     TEST_PATH = '/CA15110_COST_Project/stage1_test/'
     user = '/home/ponoprienko'
 else:
-    TRAIN_PATH = '/COST_Germany/agata_project/stage1_train/'
-    TEST_PATH = '/COST_Germany/agata_project/stage1_test/'
+    TRAIN_PATH = '/COST_Germany/agata_project/app/stage1_train/'
+    TEST_PATH = '/COST_Germany/agata_project/app/stage1_test/'
     user = '/home/pasha'
-#/home/pasha/COST_Germany/agata_project/stage1_test/
+# /home/pasha/COST_Germany/agata_project/app/stage1_test/
 
 class Network:
 
-    def unet(self, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)):
+    def unet(self, pretrained_weights=None, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)):
         inputs = Input(input_size)
         s = Lambda(lambda x: x / 255)(inputs)
 
@@ -109,11 +109,22 @@ class Network:
         #    model.load_weights(pretrained_weights)
         #   return model
 
-    def sort_data(self, input_data, output_data):
-        data_folder = user + '/CA15110_COST_Project/data/'
-        data_folder = input_data
-        #data_folder = user + '/COST_Germany/agata_project/data/'
-        #train_path = TRAIN_PATH
+    def mirror(self, image):
+        img = cv2.imread(image)
+        width = img.shape[0]  # Определяем ширину.
+        height = img.shape[1]  # Определяем высоту
+        new_img = np.zeros((width, height), dtype=np.uint8)
+        for a in range(width):
+            for b in range(height):
+                new_img[a][width - b - 1] = img[a][b][0]
+        return new_img
+
+    # def sort_data(self, input_data, output_data):
+    def sort_data(self):
+        # data_folder = user + '/CA15110_COST_Project/data/'
+        # data_folder = input_data
+        data_folder = user + '/COST_Germany/agata_project/app/data/'
+        # train_path = TRAIN_PATH
 
         files = os.listdir(data_folder)
 
@@ -124,25 +135,45 @@ class Network:
                 train_id.append(id_)
 
         for i in train_id:
-            path = output_data + i + '/images'
+
+            # Creating images
+            path = user + TRAIN_PATH + i + '/images'
             os.makedirs(path)
             copy(data_folder + '/' + i + '.png', path)
 
-            path = output_data + i + '/masks'
+            path = user + TRAIN_PATH + i + 'reversed' + '/images/'
+            os.makedirs(path)
+            img = data_folder + '/' + i + '.png'
+            img = self.mirror(img)
+            cv2.imwrite(path + i + 'reversed' + '.png', img)
+            #copy(data_folder + '/' + i + '.png', path)
+
+            # Creating masks
+            # /home/pasha/COST_Germany/agata_project/app/stage1_train/ +i + png
+            path = user + TRAIN_PATH + i + '/masks'
             os.makedirs(path)
             a = MaskCreatorFromJSON
             a.single_json_mask(self, data_folder + '/', i, path + '/')
 
-    def load_data(self):
+            img = path + '/' + i + '.png'
+            path = user + TRAIN_PATH + i + 'reversed' + '/masks/'
+            os.makedirs(path)
 
+            img = self.mirror(img)
+            cv2.imwrite(path + i + 'reversed' + '.png', img)
+
+    def load_data(self, input_data, model_path):
+        data_path = input_data
+        model_path = model_path
         warnings.filterwarnings('ignore', category=UserWarning, module='skimage')
         seed = 42
         random.seed = seed
         np.random.seed = seed
 
-        train_ids = next(os.walk(user + TRAIN_PATH))[1]
+        #train_ids = next(os.walk(user + TRAIN_PATH))[1]
+        train_ids = next(os.walk(data_path))[1]
         print(train_ids)
-        test_ids = next(os.walk(user + TEST_PATH))[1]
+        #test_ids = next(os.walk(user + TEST_PATH))[1]
 
         # Get and resize train images and masks
         X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
@@ -151,7 +182,8 @@ class Network:
         sys.stdout.flush()
 
         for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):
-            path = user + TRAIN_PATH + id_
+            #path = user + TRAIN_PATH + id_
+            path = data_path + '/' + id_
             img = cv2.imread(path + '/images/' + id_ + '.png')[:, :, :IMG_CHANNELS]
             img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
             # print('img ', img.shape)
@@ -185,11 +217,14 @@ class Network:
         # Fit model
         model = self.unet(pretrained_weights=None, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
         earlystopper = EarlyStopping(patience=5, verbose=1)
-        checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
-        model.fit(X_train, Y_train, validation_split=0.2, batch_size=2, epochs=50,
+        checkpointer = ModelCheckpoint(model_path + 'model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
+        model.fit(X_train, Y_train, validation_split=0.2, batch_size=4, epochs=50,
                   callbacks=[earlystopper, checkpointer])
 
-    def train_network(self, sort_input_data):
+    def train_network(self, input_data, model_path):
+    # def train_network(self, sort_input_data, sort_output_data):
 
-        self.sort_data(sort_input_data)
-        self.load_data()
+        #self.sort_data(sort_input_data, sort_output_data)
+
+        #self.sort_data()
+        self.load_data(input_data, model_path)
