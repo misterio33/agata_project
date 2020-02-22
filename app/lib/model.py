@@ -5,6 +5,7 @@ from shutil import copy
 import sys
 import random
 import warnings
+import logging
 
 import cv2
 
@@ -170,6 +171,9 @@ class Network:
         random.seed = seed
         np.random.seed = seed
 
+        logging.warning('data_path: %s' % data_path)
+        logging.warning('model_path: %s' % model_path)
+
         #train_ids = next(os.walk(user + TRAIN_PATH))[1]
         train_ids = next(os.walk(data_path))[1]
         print(train_ids)
@@ -217,7 +221,7 @@ class Network:
         # Fit model
         model = self.unet(pretrained_weights=None, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
         earlystopper = EarlyStopping(patience=5, verbose=1)
-        checkpointer = ModelCheckpoint(model_path + 'model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
+        checkpointer = ModelCheckpoint(model_path + '/model-agata-2020.h5', verbose=1, save_best_only=True)
         model.fit(X_train, Y_train, validation_split=0.2, batch_size=4, epochs=50,
                   callbacks=[earlystopper, checkpointer])
 
