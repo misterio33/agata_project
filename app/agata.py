@@ -56,7 +56,7 @@ def cli4():
 @click.option('--model_path', help='Indicates absolute file path to models folder')
 @click.option('--batch_size', help='Indicates Batch Size')
 @click.option('--epochs', help='Indicates how many epochs will be used during training')
-@click.option('--validation_split', help='indicates validation split')
+@click.option('--validation_split', help='Indicates validation split')
 def unet_create_model(input_data, model_name, model_path, batch_size, epochs, validation_split):
     model = Network()
     model.train_network(input_data, model_name, model_path, batch_size, epochs, validation_split)
