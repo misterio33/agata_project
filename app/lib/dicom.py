@@ -8,7 +8,9 @@ WINDOW_MAXIMUM = 2047
 OUTPUT_MINIMUM = 0
 OUTPUT_MAXIMUM = 255
 
+
 class DicomConverter:
+
   def convert(self, dicom_path, output_path):
     # Specify the input .dcm folder path
     # No matter does folder path has '/' at the end or not
