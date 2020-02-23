@@ -97,7 +97,17 @@ class Network:
         return model
 
     @staticmethod
-    def load_data(input_data, model_name, model_path, batch_size, epochs, validation_split):
+    def train_network(input_data, model_name, model_path, batch_size, epochs, validation_split):
+
+        # Specify the output model folder
+        # No matter does folder path has '/' at the end or not
+        if model_path[-1] == '/':
+            model_path = model_path
+            logging.warning('Input folder is %s' % model_path)
+        else:
+            model_path = model_path + '/'
+            logging.warning('Input folder is %s' % model_path)
+
         data_path = input_data
         warnings.filterwarnings('ignore', category=UserWarning, module='skimage')
         seed = 42
@@ -111,8 +121,8 @@ class Network:
         print(train_ids)
 
         # Get and resize train images and masks
-        X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
-        Y_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
+        train_images = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
+        train_masks = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
 
         sys.stdout.flush()
 
@@ -121,15 +131,15 @@ class Network:
             img = cv2.imread(path + '/images/' + id_ + '.png')[:, :, :IMG_CHANNELS]
             img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
 
-            X_train[n] = img
+            train_images[n] = img
             mask = np.zeros((IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
             for mask_file in next(os.walk(path + '/masks/'))[2]:
-                mask_ = cv2.imread(path + '/masks/' + mask_file)[:, :, 0]
+                mask_polygon = cv2.imread(path + '/masks/' + mask_file)[:, :, 0]
 
-                mask_ = np.expand_dims(resize(mask_, (IMG_HEIGHT, IMG_WIDTH), mode='constant',
+                mask_polygon = np.expand_dims(resize(mask_polygon, (IMG_HEIGHT, IMG_WIDTH), mode='constant',
                                               preserve_range=True), axis=-1)
-                mask = np.maximum(mask, mask_)
-                Y_train[n] = mask
+                mask = np.maximum(mask, mask_polygon)
+                train_masks[n] = mask
         """
         # Get and resize test images
         X_test = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
@@ -152,9 +162,5 @@ class Network:
         model = Network.unet(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
         earlystopper = EarlyStopping(patience=5, verbose=1)
         checkpointer = ModelCheckpoint(model_path + model_name + '.h5', verbose=1, save_best_only=True)
-        model.fit(X_train, Y_train, validation_split=float(validation_split), batch_size=int(batch_size), epochs=int(epochs),
+        model.fit(train_images, train_masks, validation_split=float(validation_split), batch_size=int(batch_size), epochs=int(epochs),
                   callbacks=[earlystopper, checkpointer])
-
-    def train_network(self, input_data, model_name, model_path, batch_size, epochs, validation_split):
-
-        self.load_data(input_data, model_name, model_path, batch_size, epochs, validation_split)
