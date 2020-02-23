@@ -51,9 +51,9 @@ def cli4():
 
 
 @cli4.command()
-@click.option('--input_data', help='Absolute file path to training folder with images and masks')
+@click.option('--input_data', help='Indicates absolute file path to training folder with images and masks')
 @click.option('--model_name', help='Indicates filename of model')
-@click.option('--model_path', help='Absolute file path to models folder')
+@click.option('--model_path', help='Indicates absolute file path to models folder')
 @click.option('--batch_size', help='Indicates Batch Size')
 @click.option('--epochs', help='Indicates how many epochs will be used during training')
 @click.option('--validation_split', help='indicates validation split')
