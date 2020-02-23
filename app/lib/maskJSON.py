@@ -32,13 +32,13 @@ class MaskCreatorFromJSON:
 
         files = os.listdir(json_path)
 
-        train_id = []
-        for id_ in files:
-            if '.json' in id_:
-                id_ = id_.replace('mask.json', '')
-                train_id.append(id_)
+        training_dataset = []
+        for id_file in files:
+            if '.json' in id_file:
+                id_file = id_file.replace('mask.json', '')
+                training_dataset.append(id_file)
 
-        for i in train_id:
+        for i in training_dataset:
 
             # Creating images
             path = output_path + i + '/images'
@@ -99,8 +99,8 @@ class MaskCreatorFromJSON:
     @staticmethod
     def reflection(image):
         img = cv2.imread(image)
-        width = img.shape[0]  # Определяем ширину.
-        height = img.shape[1]  # Определяем высоту
+        width = img.shape[0]
+        height = img.shape[1]
         new_img = np.zeros((width, height), dtype=np.uint8)
         for a in range(width):
             for b in range(height):
