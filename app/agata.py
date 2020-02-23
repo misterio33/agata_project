@@ -1,6 +1,6 @@
 import click
 from lib.dicom import DicomConverter
-#from lib.maskJSON import MaskCreatorFromJSON
+from lib.maskJSON import MaskCreatorFromJSON
 from lib.model import Network
 
 
@@ -38,18 +38,31 @@ def cli3():
 
 
 @cli3.command()
-@click.option('--input_data', help='Path to folder with data such as pictures and masks')
-@click.option('--model_path', help='Path to folder with model')
-#@click.option('--test_data', help='Path to folder with test data')
-#@click.option('--pretrained_model', help='If you have pretrained model, please write the name of this model'
- #                                        '(model must be at the same place as agata.py), if not - print "None"')
-#def Unet(sort_input_data, sort_output_data):
-def unet(input_data, model_path):
+@click.option('--json_path', help='absolute path to folder with labelme json files')
+@click.option('--output_path', help='absolute path to output folder with images and masks')
+@click.option('--has_reflection', help='Print True if you need reflect your image')
+def create_mask(json_path, output_path, has_reflection):
+    MaskCreatorFromJSON.create_mask(json_path, output_path, has_reflection)
+
+
+@click.group()
+def cli4():
+    pass
+
+
+@cli4.command()
+@click.option('--input_data', help='Absolute file path to training folder with images and masks')
+@click.option('--model_name', help='Indicates filename of model')
+@click.option('--model_path', help='Absolute file path to models folder')
+@click.option('--batch_size', help='Indicates Batch Size')
+@click.option('--epochs', help='Indicates how many epochs will be used during training')
+@click.option('--validation_split', help='indicates validation split')
+def unet_create_model(input_data, model_name, model_path, batch_size, epochs, validation_split):
     model = Network()
-    model.train_network(input_data, model_path)
+    model.train_network(input_data, model_name, model_path, batch_size, epochs, validation_split)
 
 
-cli = click.CommandCollection(sources=[cli1, cli2, cli3])
+cli = click.CommandCollection(sources=[cli1, cli2, cli3, cli4])
 
 if __name__ == '__main__':
     cli()
