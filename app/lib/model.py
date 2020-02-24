@@ -191,11 +191,11 @@ class Network:
         preds_test_t = (preds_test > 0.5).astype(np.uint8)
 
         model_name = model_name.replace('.h5', '/')
-        os.mkdir(model_path + model_name)
+        os.makedirs(model_path + model_name + 'predictions')
 
         for predicted_images in range(len(test_ids)):
             prediction = np.squeeze(preds_test_t[predicted_images] * 255)
             pred_name = test_ids[predicted_images]
-            cv2.imwrite(model_path + model_name + pred_name, prediction)
+            cv2.imwrite(model_path + model_name + 'predictions/' + pred_name, prediction)
 
 
