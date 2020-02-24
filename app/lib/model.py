@@ -126,9 +126,9 @@ class Network:
 
         sys.stdout.flush()
 
-        for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):
-            path = data_path + '/' + id_
-            img = cv2.imread(path + '/images/' + id_ + '.png')[:, :, :IMG_CHANNELS]
+        for n, id_image in tqdm(enumerate(train_ids), total=len(train_ids)):
+            path = data_path + '/' + id_image
+            img = cv2.imread(path + '/images/' + id_image + '.png')[:, :, :IMG_CHANNELS]
             img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
 
             train_images[n] = img
@@ -140,23 +140,6 @@ class Network:
                                               preserve_range=True), axis=-1)
                 mask = np.maximum(mask, mask_polygon)
                 train_masks[n] = mask
-        """
-        # Get and resize test images
-        X_test = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
-        sizes_test = []
-        print('Getting and resizing test images ... ')
-
-        sys.stdout.flush()
-
-        for n, id_ in tqdm(enumerate(test_ids), total=len(test_ids)):
-            path = TEST_PATH + id_
-            img = cv2.imread(path + '/' + id_ + '.png')[:, :, :IMG_CHANNELS]
-            print('img ', img.shape)
-            sizes_test.append([img.shape[0], img.shape[1]])
-            img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
-            print('img ', img.shape)
-            X_test[n] = img
-        """
 
         # Fit model
         model = Network.unet(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
@@ -164,3 +147,55 @@ class Network:
         checkpointer = ModelCheckpoint(model_path + model_name + '.h5', verbose=1, save_best_only=True)
         model.fit(train_images, train_masks, validation_split=float(validation_split), batch_size=int(batch_size), epochs=int(epochs),
                   callbacks=[earlystopper, checkpointer])
+
+    @staticmethod
+    def make_prediction(model_name, model_path, test_path):
+
+        # Specify the model folder directory
+        # No matter does folder path has '/' at the end or not
+        if model_path[-1] == '/':
+            model_path = model_path
+            logging.warning('Model path is %s' % model_path)
+        else:
+            model_path = model_path + '/'
+            logging.warning('Model path is %s' % model_path)
+
+        # Specify the test images folder
+        # No matter does folder path has '/' at the end or not
+        if test_path[-1] == '/':
+            test_path = test_path
+            logging.warning('Test images folder is %s' % test_path)
+        else:
+            test_path = test_path + '/'
+            logging.warning('Test images folder is %s' % test_path)
+
+        test_ids = next(os.walk(test_path))[2]
+        test_ids, len(test_ids)
+        test_images = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
+        sizes_test = []
+        print('Getting and resizing test images ... ')
+        sys.stdout.flush()
+        for n, id_image in tqdm(enumerate(test_ids), total=len(test_ids)):
+            path = test_path + '/' + id_image
+            print(path)
+            img = cv2.imread(path)[:, :, :IMG_CHANNELS]
+            print('img ', img.shape)
+            sizes_test.append([img.shape[0], img.shape[1]])
+            img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
+            print('img ', img.shape)
+            test_images[n] = img
+
+        model_save_name = model_path + '/' + model_name
+        model = tf.keras.models.load_model(model_save_name)
+        preds_test = model.predict(test_images, verbose=1)
+        preds_test_t = (preds_test > 0.5).astype(np.uint8)
+
+        model_name = model_name.replace('.h5', '/')
+        os.mkdir(model_path + model_name)
+
+        for predicted_images in range(len(test_ids)):
+            prediction = np.squeeze(preds_test_t[predicted_images] * 255)
+            pred_name = test_ids[predicted_images]
+            cv2.imwrite(model_path + model_name + pred_name, prediction)
+
+
