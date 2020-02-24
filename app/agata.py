@@ -43,6 +43,17 @@ def cli4():
     pass
 
 @cli4.command()
+@click.option('--model_name', help='Indicates absolute file path to training folder with images and masks')
+@click.option('--model_path', help='Indicates filename of model')
+@click.option('--test_path', help='Indicates absolute file path to models folder')
+def unet_make_prediction(model_name, model_path, test_path):
+    Network.make_prediction(model_name, model_path, test_path)
+
+@click.group()
+def cli5():
+    pass
+
+@cli5.command()
 @click.option('--input_data', help='Indicates absolute file path to training folder with images and masks')
 @click.option('--model_name', help='Indicates filename of model')
 @click.option('--model_path', help='Indicates absolute file path to models folder')
@@ -53,7 +64,7 @@ def unet_create_model(input_data, model_name, model_path, batch_size, epochs, va
     model = Network()
     model.train_network(input_data, model_name, model_path, batch_size, epochs, validation_split)
 
-cli = click.CommandCollection(sources=[cli1, cli2, cli3, cli4])
+cli = click.CommandCollection(sources=[cli1, cli2, cli3, cli4, cli5])
 
 if __name__ == '__main__':
     cli()
