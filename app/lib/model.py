@@ -169,14 +169,15 @@ class Network:
             test_path = test_path + '/'
             logging.warning('Test images folder is %s' % test_path)
 
-        test_ids = next(os.walk(test_path))[2]
+        test_ids = next(os.walk(test_path))[1]
+        logging.warning("test_ids %s" % test_ids)
         test_ids, len(test_ids)
         test_images = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
         sizes_test = []
         print('Getting and resizing test images ... ')
         sys.stdout.flush()
         for n, id_image in tqdm(enumerate(test_ids), total=len(test_ids)):
-            path = test_path + '/' + id_image
+            path = test_path + id_image + '/images/' + id_image + '.png'
             print(path)
             img = cv2.imread(path)[:, :, :IMG_CHANNELS]
             print('img ', img.shape)
@@ -196,6 +197,8 @@ class Network:
         for predicted_images in range(len(test_ids)):
             prediction = np.squeeze(preds_test_t[predicted_images] * 255)
             pred_name = test_ids[predicted_images]
-            cv2.imwrite(model_path + model_name + 'predictions/' + pred_name, prediction)
+            image_name = (model_path + model_name + 'predictions/' + pred_name + '.png')
+            logging.warning(image_name)
+            cv2.imwrite(image_name, prediction)
 
 
