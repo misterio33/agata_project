@@ -1,5 +1,5 @@
 import os
-#from lib.maskJSON import MaskCreatorFromJSON
+from lib.maskJSON import MaskCreatorFromJSON
 from shutil import copy
 
 import sys
@@ -29,25 +29,15 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 import tensorflow as tf
 
 # Set some parameters
-IMG_WIDTH = 256
-IMG_HEIGHT = 256
+IMG_WIDTH = 128
+IMG_HEIGHT = 128
 IMG_CHANNELS = 3
 
-server = True
-
-if server:
-    TRAIN_PATH = '/CA15110_COST_Project/stage1_train/'
-    TEST_PATH = '/CA15110_COST_Project/stage1_test/'
-    user = '/home/ponoprienko'
-else:
-    TRAIN_PATH = '/COST_Germany/agata_project/app/stage1_train/'
-    TEST_PATH = '/COST_Germany/agata_project/app/stage1_test/'
-    user = '/home/pasha'
-# /home/pasha/COST_Germany/agata_project/app/stage1_test/
 
 class Network:
 
-    def unet(self, pretrained_weights=None, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)):
+    @staticmethod
+    def unet(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)):
         inputs = Input(input_size)
         s = Lambda(lambda x: x / 255)(inputs)
 
@@ -103,69 +93,22 @@ class Network:
 
         model = Model(inputs=[inputs], outputs=[outputs])
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[tf.keras.metrics.MeanIoU(num_classes=2)])
-        # model.summary()
+
         return model
 
-        # if pretrained_weights:
-        #    model.load_weights(pretrained_weights)
-        #   return model
+    @staticmethod
+    def train_network(input_data, model_name, model_path, batch_size, epochs, validation_split):
 
-    def mirror(self, image):
-        img = cv2.imread(image)
-        width = img.shape[0]  # Определяем ширину.
-        height = img.shape[1]  # Определяем высоту
-        new_img = np.zeros((width, height), dtype=np.uint8)
-        for a in range(width):
-            for b in range(height):
-                new_img[a][width - b - 1] = img[a][b][0]
-        return new_img
+        # Specify the output model folder
+        # No matter does folder path has '/' at the end or not
+        if model_path[-1] == '/':
+            model_path = model_path
+            logging.warning('Input folder is %s' % model_path)
+        else:
+            model_path = model_path + '/'
+            logging.warning('Input folder is %s' % model_path)
 
-    # def sort_data(self, input_data, output_data):
-    def sort_data(self):
-        # data_folder = user + '/CA15110_COST_Project/data/'
-        # data_folder = input_data
-        data_folder = user + '/COST_Germany/agata_project/app/data/'
-        # train_path = TRAIN_PATH
-
-        files = os.listdir(data_folder)
-
-        train_id = []
-        for n, id_ in tqdm(enumerate(files), total=len(files)):
-            if '.png' in id_:
-                id_ = id_.replace('.png', '')
-                train_id.append(id_)
-
-        for i in train_id:
-
-            # Creating images
-            path = user + TRAIN_PATH + i + '/images'
-            os.makedirs(path)
-            copy(data_folder + '/' + i + '.png', path)
-
-            path = user + TRAIN_PATH + i + 'reversed' + '/images/'
-            os.makedirs(path)
-            img = data_folder + '/' + i + '.png'
-            img = self.mirror(img)
-            cv2.imwrite(path + i + 'reversed' + '.png', img)
-            #copy(data_folder + '/' + i + '.png', path)
-
-            # Creating masks
-            # /home/pasha/COST_Germany/agata_project/app/stage1_train/ +i + png
-            path = user + TRAIN_PATH + i + '/masks'
-            os.makedirs(path)
-            a = MaskCreatorFromJSON
-            a.single_json_mask(self, data_folder + '/', i, path + '/')
-
-            img = path + '/' + i + '.png'
-            path = user + TRAIN_PATH + i + 'reversed' + '/masks/'
-            os.makedirs(path)
-
-            img = self.mirror(img)
-            cv2.imwrite(path + i + 'reversed' + '.png', img)
-
-    def load_data(self, input_data, model_path):
         data_path = input_data
-        model_path = model_path
         warnings.filterwarnings('ignore', category=UserWarning, module='skimage')
         seed = 42
         random.seed = seed
@@ -174,61 +117,88 @@ class Network:
         logging.warning('data_path: %s' % data_path)
         logging.warning('model_path: %s' % model_path)
 
-        #train_ids = next(os.walk(user + TRAIN_PATH))[1]
         train_ids = next(os.walk(data_path))[1]
         print(train_ids)
-        #test_ids = next(os.walk(user + TEST_PATH))[1]
 
         # Get and resize train images and masks
-        X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
-        Y_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
+        train_images = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
+        train_masks = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
 
         sys.stdout.flush()
 
-        for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):
-            #path = user + TRAIN_PATH + id_
-            path = data_path + '/' + id_
-            img = cv2.imread(path + '/images/' + id_ + '.png')[:, :, :IMG_CHANNELS]
+        for n, id_image in tqdm(enumerate(train_ids), total=len(train_ids)):
+            path = data_path + '/' + id_image
+            img = cv2.imread(path + '/images/' + id_image + '.png')[:, :, :IMG_CHANNELS]
             img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
-            # print('img ', img.shape)
-            X_train[n] = img
+
+            train_images[n] = img
             mask = np.zeros((IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
             for mask_file in next(os.walk(path + '/masks/'))[2]:
-                mask_ = cv2.imread(path + '/masks/' + mask_file)[:, :, 0]
-                # print('m ', mask_.shape)
-                mask_ = np.expand_dims(resize(mask_, (IMG_HEIGHT, IMG_WIDTH), mode='constant',
+                mask_polygon = cv2.imread(path + '/masks/' + mask_file)[:, :, 0]
+
+                mask_polygon = np.expand_dims(resize(mask_polygon, (IMG_HEIGHT, IMG_WIDTH), mode='constant',
                                               preserve_range=True), axis=-1)
-                mask = np.maximum(mask, mask_)
-                Y_train[n] = mask
-        """
-        # Get and resize test images
-        X_test = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
+                mask = np.maximum(mask, mask_polygon)
+                train_masks[n] = mask
+
+        # Fit model
+        model = Network.unet(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
+        earlystopper = EarlyStopping(patience=5, verbose=1)
+        checkpointer = ModelCheckpoint(model_path + model_name + '.h5', verbose=1, save_best_only=True)
+        model.fit(train_images, train_masks, validation_split=float(validation_split), batch_size=int(batch_size), epochs=int(epochs),
+                  callbacks=[earlystopper, checkpointer])
+
+    @staticmethod
+    def make_prediction(model_name, model_path, test_path):
+
+        # Specify the model folder directory
+        # No matter does folder path has '/' at the end or not
+        if model_path[-1] == '/':
+            model_path = model_path
+            logging.warning('Model path is %s' % model_path)
+        else:
+            model_path = model_path + '/'
+            logging.warning('Model path is %s' % model_path)
+
+        # Specify the test images folder
+        # No matter does folder path has '/' at the end or not
+        if test_path[-1] == '/':
+            test_path = test_path
+            logging.warning('Test images folder is %s' % test_path)
+        else:
+            test_path = test_path + '/'
+            logging.warning('Test images folder is %s' % test_path)
+
+        test_ids = next(os.walk(test_path))[1]
+        logging.warning("test_ids %s" % test_ids)
+        test_ids, len(test_ids)
+        test_images = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
         sizes_test = []
         print('Getting and resizing test images ... ')
-
         sys.stdout.flush()
-
-        for n, id_ in tqdm(enumerate(test_ids), total=len(test_ids)):
-            path = TEST_PATH + id_
-            img = cv2.imread(path + '/' + id_ + '.png')[:, :, :IMG_CHANNELS]
+        for n, id_image in tqdm(enumerate(test_ids), total=len(test_ids)):
+            path = test_path + id_image + '/images/' + id_image + '.png'
+            print(path)
+            img = cv2.imread(path)[:, :, :IMG_CHANNELS]
             print('img ', img.shape)
             sizes_test.append([img.shape[0], img.shape[1]])
             img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
             print('img ', img.shape)
-            X_test[n] = img
-        """
+            test_images[n] = img
 
-        # Fit model
-        model = self.unet(pretrained_weights=None, input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
-        earlystopper = EarlyStopping(patience=5, verbose=1)
-        checkpointer = ModelCheckpoint(model_path + '/model-agata-2020.h5', verbose=1, save_best_only=True)
-        model.fit(X_train, Y_train, validation_split=0.2, batch_size=4, epochs=50,
-                  callbacks=[earlystopper, checkpointer])
+        model_save_name = model_path + '/' + model_name
+        model = tf.keras.models.load_model(model_save_name)
+        preds_test = model.predict(test_images, verbose=1)
+        preds_test_t = (preds_test > 0.5).astype(np.uint8)
 
-    def train_network(self, input_data, model_path):
-    # def train_network(self, sort_input_data, sort_output_data):
+        model_name = model_name.replace('.h5', '/')
+        os.makedirs(model_path + model_name + 'predictions')
 
-        #self.sort_data(sort_input_data, sort_output_data)
+        for predicted_images in range(len(test_ids)):
+            prediction = np.squeeze(preds_test_t[predicted_images] * 255)
+            pred_name = test_ids[predicted_images]
+            image_name = (model_path + model_name + 'predictions/' + pred_name + '.png')
+            logging.warning(image_name)
+            cv2.imwrite(image_name, prediction)
 
-        #self.sort_data()
-        self.load_data(input_data, model_path)
+
